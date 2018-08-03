@@ -14,7 +14,7 @@ T__DATA_TEXT::T__DATA_TEXT()
 , b_RefreshFbo(false)
 , c_SkipProcessControl(0)
 // , Sound("sound/WhiteNoise.wav", 0.3, 0.5, 1.0)
-, Sound("sound/rain.wav", 0.2, 1.0, 2.0)
+, Sound("sound/rain.wav", 0.3, 1.0, 2.0)
 , t_LastSkeltonData(0)
 {
 }
@@ -276,6 +276,13 @@ void T__DATA_TEXT::draw_FboToMonitor(int id)
 	ofSetColor(255, 255, 255, 255);
 	// fbo[id].draw(0, 0, fbo[id].getWidth(), fbo[id].getHeight());
 	fbo_masked[id].draw(0, 0, fbo_masked[id].getWidth(), fbo_masked[id].getHeight());
+}
+
+/******************************
+******************************/
+void T__DATA_TEXT::CheckStatusOfSound()
+{
+	Sound.CheckStatus();
 }
 
 

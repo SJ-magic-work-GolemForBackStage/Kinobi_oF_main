@@ -13,6 +13,7 @@ T__CURSOR::T__CURSOR()
 , Speed(10) // temporary.
 , t_LastSkeltonData(0)
 , c_SkipProcessControl(0)
+, t_Last_Sound_pi(0)
 {
 }
 
@@ -187,7 +188,11 @@ void T__CURSOR::update()
 		float distance = VecLeft.length();
 		if(distance < Speed * (now - t_LastRefresh)){
 			Reset(false);
-			Sound_pi.play();
+			
+			if(1.0 < now - t_Last_Sound_pi){ // 近すぎてnoisyになるのを避ける.
+				Sound_pi.play();
+				t_Last_Sound_pi = now;
+			}
 			
 		}else{
 			CursorPos += Speed * (now - t_LastRefresh) * MovDirection;

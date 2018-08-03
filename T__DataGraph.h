@@ -273,6 +273,8 @@ public:
 		return &inst;
 	}
 	
+	void  CheckStatusOfSound();
+	
 	void exit();
 	void setup();
 	void update();

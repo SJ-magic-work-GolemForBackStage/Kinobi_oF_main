@@ -9,8 +9,10 @@
 ******************************/
 ofApp::ofApp()
 : Osc_Golem("127.0.0.1", 12350, 12345)
+// : Osc_Golem("10.0.0.2", 12350, 12345)
 , Osc_Unity("127.0.0.1", 12347, 12346)
 , Osc_oF_AmbientSound("127.0.0.1", 12349, 12348)
+, Osc_oF_LiveCam("127.0.0.1", 12354, 12353)
 , draw_TextureImage_id(TEXTURE__FLOOR)
 , T_Floor(T__FLOOR::getInstance())
 , T_AiAvatar(T__AI_AVATAR::getInstance())
@@ -100,16 +102,46 @@ void ofApp::ResTo_OscFromGolem(){
 		if(m_receive.getAddress() == "/Golem/Status"){
 			const int NUM_SENSORS = 6;
 			
-			ofxOscMessage m;
-			m.setAddress("/Golem/Status");
-			for(int i = 0; i < NUM_SENSORS; i++) { m.addIntArg(m_receive.getArgAsInt(i)); }
-			Osc_Unity.OscSend.sendMessage(m);
+			bool b_ValidMessage = true;
+			
+			if(m_receive.getNumArgs() != NUM_SENSORS){
+				b_ValidMessage = false;
+			}else{
+				for(int i = 0; i < NUM_SENSORS; i++){
+					if(m_receive.getArgType(i) != OFXOSC_TYPE_INT32){
+						b_ValidMessage = false;
+					}
+				}
+			}
+			
+			if(b_ValidMessage){
+				ofxOscMessage m;
+				m.setAddress("/Golem/Status");
+				for(int i = 0; i < NUM_SENSORS; i++) { m.addIntArg(m_receive.getArgAsInt(i)); }
+				Osc_Unity.OscSend.sendMessage(m);
+			}else{
+				printf("/Golem/Status : Envalid format\n");
+			}
 			
 		}else if(m_receive.getAddress() == "/Golem/Message"){
-			ofxOscMessage m;
-			m.setAddress("/Golem/Message");
-			m.addIntArg(m_receive.getArgAsInt(0));
-			Osc_Unity.OscSend.sendMessage(m);
+			bool b_ValidMessage = true;
+			
+			if(m_receive.getNumArgs() != 1){
+				b_ValidMessage = false;
+			}else{
+				if(m_receive.getArgType(0) != OFXOSC_TYPE_INT32){
+					b_ValidMessage = false;
+				}
+			}
+			
+			if(b_ValidMessage){
+				ofxOscMessage m;
+				m.setAddress("/Golem/Message");
+				m.addIntArg(m_receive.getArgAsInt(0));
+				Osc_Unity.OscSend.sendMessage(m);
+			}else{
+				printf("/Golem/Message : Envalid format\n");
+			}
 		}
 	}
 	
@@ -170,6 +202,12 @@ void ofApp::ResTo_OscFromUnity(){
 			m.setAddress("/Quit");
 			m.addIntArg(0); // dummy.
 			Osc_oF_AmbientSound.OscSend.sendMessage(m);
+			
+		}else if(m_receive.getAddress() == "/Message/to_oF_LiveCam/PlayStops"){
+			ofxOscMessage m;
+			m.setAddress("/PlayStop");
+			m.addIntArg(m_receive.getArgAsInt(0));
+			Osc_oF_LiveCam.OscSend.sendMessage(m);
 		}
 	}
 }
@@ -194,10 +232,9 @@ void ofApp::ResTo_UdpFromGolem(){
 			if(block[0] == "/Golem/SkeletonDefinition"){
 				udp_SendToUnity.Send(message.c_str(), message.length()); // bypass
 				
-			}else if(block[0] == "/Golem/SkeltonData"){
-				FromGolem_FrameDataAll.set(block);
+			}else if(block[0] == "/Golem/SkeletonData"){
 				udp_SendToUnity.Send(message.c_str(), message.length()); // bypass
-				
+				FromGolem_FrameDataAll.set(block);
 			}
 			
 		}else{
@@ -387,6 +424,11 @@ void ofApp::keyPressed(int key){
 		case ' ':
 			ofSaveScreen("image.png");
 			printf("image saved\n");
+			break;
+			
+		case 'c':
+			T_DataText->CheckStatusOfSound();
+			T_DataGraph->CheckStatusOfSound();
 			break;
 	}
 }

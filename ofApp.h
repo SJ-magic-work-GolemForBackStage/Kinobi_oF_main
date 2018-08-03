@@ -54,6 +54,7 @@ private:
 	OSC_TARGET Osc_Golem;
 	OSC_TARGET Osc_Unity;
 	OSC_TARGET Osc_oF_AmbientSound;
+	OSC_TARGET Osc_oF_LiveCam;
 	
 	ofxUDPManager udp_ReceiveFromGolem;
 	ofxUDPManager udp_SendToUnity;

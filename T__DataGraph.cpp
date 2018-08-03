@@ -505,4 +505,10 @@ void T__DATA_GRAPH::draw_FboToMonitor()
 	fbo.draw(0, 0, fbo.getWidth(), fbo.getHeight());
 }
 
+/******************************
+******************************/
+void T__DATA_GRAPH::CheckStatusOfSound()
+{
+	Sound_Morse.CheckStatus();
+}
 

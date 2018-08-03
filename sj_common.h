@@ -59,6 +59,7 @@ private:
 		STATE_PLAY,
 	};
 	
+	string str_FileName;
 	ofSoundPlayer Sound;
 	STATE State;
 	const float vol_max;
@@ -93,6 +94,7 @@ public:
 	: State(STATE_STOP)
 	, vol_max(_vol_max)
 	, t_LastUpdate(0)
+	, str_FileName(FileName)
 	{
 		vol_down_speed = (vol_max - 0) / d_volDown;
 		vol_up_speed = (vol_max - 0) / d_volUp;
@@ -137,6 +139,7 @@ public:
 				break;
 				
 			case STATE_PAUSE:
+				if(!Sound.isPlaying()) Sound.play();
 				Sound.setPaused(false);
 				break;
 				
@@ -163,6 +166,10 @@ public:
 				State = STATE_PAUSE;
 				break;
 		}
+	}
+	
+	void CheckStatus(){
+		printf("[%s] isLoaded:%d, isPlaying:%d, vol:%f, state:%d\n", str_FileName.c_str(), Sound.isLoaded(), Sound.isPlaying(), Sound.getVolume(), State);
 	}
 };
 

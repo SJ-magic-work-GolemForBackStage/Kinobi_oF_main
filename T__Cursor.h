@@ -57,6 +57,7 @@ private:
 	ofxSyphonServer fbo_TextureSyphonServer;
 	
 	ofSoundPlayer Sound_pi;
+	float t_Last_Sound_pi;
 	
 	ofVec2f history[NUM_HISTORY];
 	ofVec2f CursorPos;
