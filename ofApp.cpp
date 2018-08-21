@@ -159,7 +159,8 @@ void ofApp::ResTo_OscFromUnity(){
 			ofxOscMessage m;
 			m.setAddress("/Message");
 			
-			m.addIntArg(int(m_receive.getArgAsFloat(0)));								// message id
+			// m.addIntArg(int(m_receive.getArgAsFloat(0)));								// message id
+			m.addFloatArg(float(m_receive.getArgAsFloat(0)));								// message id
 			for(int i = 1; i < 11; i++) { m.addFloatArg(m_receive.getArgAsFloat(i)); }	// params
 			
 			Osc_Golem.OscSend.sendMessage(m);
