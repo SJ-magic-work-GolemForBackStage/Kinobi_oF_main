@@ -133,7 +133,7 @@ void T__AI_BONE::drawToFbo_SendSyphon()
 			ofSetColor(0, 120, 255, 230);
 			int ofs_x = 0;
 			int ofs_y = 40;
-			font.drawStringAsShapes(str_DigitsContents.c_str(), ofs_x, font.stringHeight("0"));
+			font.drawString(str_DigitsContents.c_str(), ofs_x, font.stringHeight("0"));
 		ofPopMatrix();
 	fbo.end();
 	

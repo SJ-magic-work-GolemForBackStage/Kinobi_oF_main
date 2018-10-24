@@ -4,12 +4,22 @@
 
 /************************************************************
 ************************************************************/
+#define DEBUG_BY_DUMMY
+
+/************************************************************
+************************************************************/
 
 /******************************
 ******************************/
-ofApp::ofApp()
+ofApp::ofApp(int _BootMode, int _GolemId)
+#ifdef DEBUG_BY_DUMMY
 : Osc_Golem("127.0.0.1", 12350, 12345)
-// : Osc_Golem("10.0.0.2", 12350, 12345)
+, Osc_Mirror("127.0.0.1", 12358, 12359)
+#else
+: Osc_Golem("10.0.0.2", 12350, 12345)
+, Osc_Mirror("10.0.0.10", 12358, 12359)
+#endif
+
 , Osc_Unity("127.0.0.1", 12347, 12346)
 , Osc_oF_AmbientSound("127.0.0.1", 12349, 12348)
 , Osc_oF_LiveCam("127.0.0.1", 12354, 12353)
@@ -20,6 +30,8 @@ ofApp::ofApp()
 , T_DataText(T__DATA_TEXT::getInstance() )
 , T_Cursor(T__CURSOR::getInstance() )
 , T_DataGraph(T__DATA_GRAPH::getInstance() )
+, BootMode(BOOT_MODE(_BootMode))
+, Golem_id(_GolemId)
 {
 	/********************
 	********************/
@@ -73,6 +85,19 @@ void ofApp::setup(){
     udp_SendToUnity.Create();
 	udp_SendToUnity.Connect("127.0.0.1",12352);
 	udp_SendToUnity.SetNonBlocking(true);
+	
+	if(BootMode == BOOT_MODE__MIRROR){
+#ifdef DEBUG_BY_DUMMY
+		char _ip[BUF_SIZE_S] = "127.0.0.1";
+#else
+		char _ip[BUF_SIZE_S] = "10.0.0.10";
+#endif
+		
+		udp_SendToMirror.Create();
+		if(Golem_id == 0)	udp_SendToMirror.Connect(_ip,12355);
+		else				udp_SendToMirror.Connect(_ip,12356);
+		udp_SendToMirror.SetNonBlocking(true);
+	}
 	
 	/********************
 	********************/
@@ -215,6 +240,26 @@ void ofApp::ResTo_OscFromUnity(){
 
 /******************************
 ******************************/
+void ofApp::ResTo_OscFromMirror(){
+	while(Osc_Mirror.OscReceive.hasWaitingMessages()){
+		ofxOscMessage m_receive;
+		Osc_Mirror.OscReceive.getNextMessage(&m_receive);
+		
+		if(m_receive.getAddress() == "/Message/ToGolem"){
+			ofxOscMessage m;
+			m.setAddress("/Message");
+			
+			// m.addIntArg(int(m_receive.getArgAsFloat(0)));								// message id
+			m.addFloatArg(float(m_receive.getArgAsFloat(0)));								// message id
+			for(int i = 1; i < 11; i++) { m.addFloatArg(m_receive.getArgAsFloat(i)); }	// params
+			
+			Osc_Golem.OscSend.sendMessage(m);
+		}
+	}
+}
+
+/******************************
+******************************/
 void ofApp::ResTo_UdpFromGolem(){
 
 	bool b_MessageReceived;
@@ -233,9 +278,13 @@ void ofApp::ResTo_UdpFromGolem(){
 			if(block[0] == "/Golem/SkeletonDefinition"){
 				udp_SendToUnity.Send(message.c_str(), message.length()); // bypass
 				
+				if(BootMode == BOOT_MODE__MIRROR) udp_SendToMirror.Send(message.c_str(), message.length()); // bypass
+				
 			}else if(block[0] == "/Golem/SkeletonData"){
 				udp_SendToUnity.Send(message.c_str(), message.length()); // bypass
 				FromGolem_FrameDataAll.set(block);
+				
+				if(BootMode == BOOT_MODE__MIRROR) udp_SendToMirror.Send(message.c_str(), message.length()); // bypass
 			}
 			
 		}else{
@@ -284,6 +333,7 @@ void ofApp::update(){
 	********************/
 	ResTo_OscFromGolem();
 	ResTo_OscFromUnity();
+	ResTo_OscFromMirror();
 	
 	/********************
 	********************/
@@ -379,7 +429,7 @@ void ofApp::draw(){
 	char buf[BUF_SIZE_S];
 	sprintf(buf, "%4d", int(ofGetFrameRate() + 0.5));
 	ofSetColor(255, 255, 255, 210);
-	font.drawStringAsShapes(buf, 800, 20);
+	font.drawString(buf, 800, 20);
 }
 
 //--------------------------------------------------------------

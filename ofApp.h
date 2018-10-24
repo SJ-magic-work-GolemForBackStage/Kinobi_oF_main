@@ -31,6 +31,12 @@ class ofApp : public ofBaseApp{
 private:
 	/****************************************
 	****************************************/
+	enum BOOT_MODE{
+		BOOT_MODE__ALONE,
+		BOOT_MODE__MIRROR,
+	};
+
+
 	enum TEXTURE_IMAGES{
 		TEXTURE__FLOOR,
 		TEXTURE__CURSOR,
@@ -65,6 +71,14 @@ private:
 	
 	/********************
 	********************/
+	BOOT_MODE BootMode;
+	int Golem_id;
+	
+	ofxUDPManager udp_SendToMirror;
+	OSC_TARGET Osc_Mirror;
+	
+	/********************
+	********************/
 	T__FLOOR* T_Floor;
 	T__AI_AVATAR* T_AiAvatar;
 	T__AI_BONE* T_AiBone;
@@ -76,6 +90,7 @@ private:
 	****************************************/
 	void ResTo_OscFromGolem();
 	void ResTo_OscFromUnity();
+	void ResTo_OscFromMirror();
 	
 	void ResTo_UdpFromGolem();
 	void SaveUdpData_SkeltonData_all(vector<string> &block);
@@ -88,7 +103,7 @@ private:
 public:
 	/****************************************
 	****************************************/
-	ofApp();
+	ofApp(int _BootMode, int _GolemId);
 	~ofApp();
 	void exit();
 	

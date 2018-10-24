@@ -349,7 +349,7 @@ void T__DATA_GRAPH::Draw__DataToString(bool *SkipDisp, float DataArray[], int nu
 				char buf[BUF_SIZE_S];
 				if(b_IsHex)	sprintf(buf, "%X", float2hex(DataArray[i]));
 				else		sprintf(buf, "%+8.3f", DataArray[i]);
-				font.drawStringAsShapes(buf, 0, 0);
+				font.drawString(buf, 0, 0);
 			}
 			
 			ofTranslate(Matrix_ofs_step);
@@ -397,9 +397,9 @@ void T__DATA_GRAPH::Draw_Rader(const ofVec3f& Matrix_ofs, const float angle, con
 		ofSetColor(col_Text_Rader);
 		char buf[BUF_SIZE_S];
 		sprintf(buf, "%03d", int(angle));
-		font_Rader_L.drawStringAsShapes(buf, -23, 9);
+		font_Rader_L.drawString(buf, -23, 9);
 		
-		font_Rader_S.drawStringAsShapes(str_Label.c_str(), -10, 45);
+		font_Rader_S.drawString(str_Label.c_str(), -10, 45);
 		
 	ofPopMatrix();
 }

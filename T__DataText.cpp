@@ -235,7 +235,7 @@ void T__DATA_TEXT::drawToFbo_SendSyphon()
 			
 			// ofSetColor(255, 255, 255, 180);
 			ofSetColor(255, 255, 255, 210);
-			font.drawStringAsShapes(str_Contents.c_str(), DrawPos.x, DrawPos.y);
+			font.drawString(str_Contents.c_str(), DrawPos.x, DrawPos.y);
 		fbo[SurfaceId].end();
 	
 		b_RefreshFbo = false;
