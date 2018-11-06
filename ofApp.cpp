@@ -14,6 +14,7 @@
 ofApp::ofApp(int _BootMode, int _GolemId)
 #ifdef DEBUG_BY_DUMMY
 : Osc_Golem("127.0.0.1", 12350, 12345)
+// : Osc_Golem("10.0.0.2", 12350, 12345)
 , Osc_Mirror("127.0.0.1", 12358, 12359)
 #else
 : Osc_Golem("10.0.0.2", 12350, 12345)
