@@ -71,9 +71,10 @@ private:
 	
 	/********************
 	********************/
-	BOOT_MODE BootMode;
+	char MirrorIp[BUF_SIZE_S];
 	int Golem_id;
 	
+	float t_LastSend_UdpToMirror;
 	ofxUDPManager udp_SendToMirror;
 	OSC_TARGET Osc_Mirror;
 	
@@ -103,7 +104,7 @@ private:
 public:
 	/****************************************
 	****************************************/
-	ofApp(int _BootMode, int _GolemId);
+	ofApp(const char* _GolemIP, const char* _MirrorIP, int _GolemId);
 	~ofApp();
 	void exit();
 	

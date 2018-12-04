@@ -4,22 +4,12 @@
 
 /************************************************************
 ************************************************************/
-#define DEBUG_BY_DUMMY
-
-/************************************************************
-************************************************************/
 
 /******************************
 ******************************/
-ofApp::ofApp(int _BootMode, int _GolemId)
-#ifdef DEBUG_BY_DUMMY
-: Osc_Golem("127.0.0.1", 12350, 12345)
-// : Osc_Golem("10.0.0.2", 12350, 12345)
-, Osc_Mirror("127.0.0.1", 12358, 12359)
-#else
-: Osc_Golem("10.0.0.2", 12350, 12345)
-, Osc_Mirror("10.0.0.10", 12358, 12359)
-#endif
+ofApp::ofApp(const char* _GolemIP, const char* _MirrorIP, int _GolemId)
+: Osc_Golem(_GolemIP, 12350, 12345)
+, Osc_Mirror(_MirrorIP, 12358, 12359)
 
 , Osc_Unity("127.0.0.1", 12347, 12346)
 , Osc_oF_AmbientSound("127.0.0.1", 12349, 12348)
@@ -31,9 +21,14 @@ ofApp::ofApp(int _BootMode, int _GolemId)
 , T_DataText(T__DATA_TEXT::getInstance() )
 , T_Cursor(T__CURSOR::getInstance() )
 , T_DataGraph(T__DATA_GRAPH::getInstance() )
-, BootMode(BOOT_MODE(_BootMode))
 , Golem_id(_GolemId)
+, t_LastSend_UdpToMirror(0)
 {
+	/********************
+	********************/
+	if(BUF_SIZE_S <= strlen(_MirrorIP)) { ERROR_MSG(); std::exit(1); }
+	strcpy(MirrorIp, _MirrorIP);
+	
 	/********************
 	********************/
 	// font.load("font/RictyDiminished-Regular.ttf", 15, true, true, true);
@@ -87,18 +82,10 @@ void ofApp::setup(){
 	udp_SendToUnity.Connect("127.0.0.1",12352);
 	udp_SendToUnity.SetNonBlocking(true);
 	
-	if(BootMode == BOOT_MODE__MIRROR){
-#ifdef DEBUG_BY_DUMMY
-		char _ip[BUF_SIZE_S] = "127.0.0.1";
-#else
-		char _ip[BUF_SIZE_S] = "10.0.0.10";
-#endif
-		
-		udp_SendToMirror.Create();
-		if(Golem_id == 0)	udp_SendToMirror.Connect(_ip,12355);
-		else				udp_SendToMirror.Connect(_ip,12356);
-		udp_SendToMirror.SetNonBlocking(true);
-	}
+	udp_SendToMirror.Create();
+	if(Golem_id == 0)	udp_SendToMirror.Connect(MirrorIp,12355);
+	else				udp_SendToMirror.Connect(MirrorIp,12356);
+	udp_SendToMirror.SetNonBlocking(true);
 	
 	/********************
 	********************/
@@ -279,13 +266,16 @@ void ofApp::ResTo_UdpFromGolem(){
 			if(block[0] == "/Golem/SkeletonDefinition"){
 				udp_SendToUnity.Send(message.c_str(), message.length()); // bypass
 				
-				if(BootMode == BOOT_MODE__MIRROR) udp_SendToMirror.Send(message.c_str(), message.length()); // bypass
+				udp_SendToMirror.Send(message.c_str(), message.length()); // bypass
 				
 			}else if(block[0] == "/Golem/SkeletonData"){
 				udp_SendToUnity.Send(message.c_str(), message.length()); // bypass
 				FromGolem_FrameDataAll.set(block);
 				
-				if(BootMode == BOOT_MODE__MIRROR) udp_SendToMirror.Send(message.c_str(), message.length()); // bypass
+				if(0.03 < now - t_LastSend_UdpToMirror){
+					udp_SendToMirror.Send(message.c_str(), message.length()); // bypass
+					t_LastSend_UdpToMirror = now;
+				}
 			}
 			
 		}else{
